@@ -1,6 +1,22 @@
-const { execSync } = require('child_process');
-const path = require('path');
+'use strict';
+
 const fs = require('fs');
+const path = require('path');
+const cp = require('child_process');
+
+const gracefulExit = () => {
+    console.log('Exiting without error.');
+    process.exit();
+  };
+
+const showError = e => {
+    console.error('ERROR! An error occurred');
+    console.error(e);
+    process.exit(1);
+};
+
+process.on('SIGINT', gracefulExit);
+process.on('uncaughtException', showError);
 
 // check for app name or exit with warning
 if (process.argv.length < 3) {
@@ -32,7 +48,7 @@ try {
 async function main() {
     try {
       console.log('Downloading files...');
-      execSync(`git clone --depth 1 ${git_repo} ${projectPath}`);
+      cp.execSync(`git clone --depth 1 ${git_repo} ${projectPath}`);
 
       process.chdir(projectPath);
 
@@ -40,7 +56,7 @@ async function main() {
     //   execSync('npm install');
 
       console.log('Removing useless files');
-      execSync('npx rimraf ./.git');
+      cp.execSync('npx rimraf ./.git');
       fs.rmdirSync(path.join(projectPath, 'bin'), { recursive: true});
 
       console.log('Successfully cloned Amorphic boilerplate');
